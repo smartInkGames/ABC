@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ذاكرة الحيوانات التفاعلية 🦁🎨</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef7fc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+        h1 {
+            color: #2a4d69;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        p {
+            color: #4b86b4;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        /* شبكة الكروت: 4 أعمدة و 3 صفوف لتناسب 12 كرت */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 550px;
+            width: 100%;
+        }
+        .card {
+            height: 110px;
+            background-color: #4b86b4; /* لون الكرت وهو مغلق */
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s, background-color 0.3s;
+            overflow: hidden;
+            padding: 5px;
+        }
+        /* تصميم الكرت عند فتحه */
+        .card.flipped {
+            background-color: #ffffff;
+            border: 3px solid #ffcb05;
+            transform: scale(1.05);
+        }
+        /* تصميم الكرت عند التطابق الصحيح */
+        .card.matched {
+            background-color: #2ecc71;
+            border: 3px solid #27ae60;
+            cursor: default;
+            transform: scale(1);
+        }
+        /* ضبط حجم صور الحيوانات داخل الكروت */
+        .card img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            display: none; /* إخفاء الصورة في البداية */
+        }
+        /* إظهار الصورة فقط عندما يُفتح الكرت أو يتطابق */
+        .card.flipped img, .card.matched img {
+            display: block;
+        }
+        .reset-btn {
+            margin-top: 25px;
+            padding: 12px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .reset-btn:hover {
+            transform: scale(1.05);
+            background-color: #ff4747;
+        }
+        .win-message {
+            display: none;
+            color: #2ecc71;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            animation: bounce 0.5s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>لعبة الذاكرة وبصمتي الصغيرة 🐾✨</h1>
+    <p>ابحث عن الحيوانات المتطابقة المفرغة للتلوين!</p>
+
+    <!-- مكان ظهور كروت الحيوانات -->
+    <div class="game-grid" id="gameGrid"></div>
+
+    <div class="win-message" id="winMessage">🎉 مذهل جداً! لقد فزت واكتشفت كل الحيوانات يا بطل! 🎉</div>
+
+    <button class="reset-btn" onclick="resetGame()">إعادة اللعب 🔄</button>
+
+<script>
+    // روابط صور الحيوانات المفرغة للتلوين (استخدمنا صوراً تعليمية مفرغة واضحة للأطفال)
+    const animalImages = [
+        'https://img.freepik.com/free-vector/cute-snake-cartoon-coloring-page_125446-1008.jpg', // أفعى مفرغة ولطيفة مثل تصميمكِ
+        'https://img.freepik.com/free-vector/cute-lion-cartoon-coloring-page_125446-993.jpg',  // أسد مفرغ
+        'https://img.freepik.com/free-vector/cute-duck-cartoon-coloring-page_125446-1011.jpg',  // بطة مفرغة للتتبع
+        'https://img.freepik.com/free-vector/cute-elephant-cartoon-coloring-page_125446-953.jpg',// فيل مفرغ
+        'https://img.freepik.com/free-vector/cute-monkey-cartoon-coloring-page_125446-950.jpg', // قرد مفرغ
+        'https://img.freepik.com/free-vector/cute-rabbit-cartoon-coloring-page_125446-976.jpg'  // أرنب مفرغ
+    ];
+
+    // تكرار الصور مرتين لإنشاء 12 كرت متطابق
+    const items = [...animalImages, ...animalImages];
+    
+    let flippedCards = [];
+    let matchedCount = 0;
+    let lockBoard = false;
+
+    const gameGrid = document.getElementById('gameGrid');
+    const winMessage = document.getElementById('winMessage');
+
+    // تشغيل الأصوات التفاعلية ذاتياً بدون الحاجة لملفات صوتية خارجية لحل مشكلة الحظر
+    function playSound(type) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (type === 'flip') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(550, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.08);
+            } else if (type === 'match') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(170, ctx.currentTime);
+                osc.frequency.setValueAtTime(130, ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2);
+            }
+        } catch (e) {
+            console.log("الصوت يعمل بعد اللمس.");
+        }
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function createBoard() {
+        const shuffledItems = shuffle([...items]);
+        gameGrid.innerHTML = '';
+        winMessage.style.display = 'none';
+        matchedCount = 0;
+        flippedCards = [];
+        lockBoard = false;
+
+        shuffledItems.forEach((imgUrl) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.value = imgUrl;
+            
+            // إضافة الصورة داخل الكرت
+            const img = document.createElement('img');
+            img.src = imgUrl;
+            img.alt = 'حيوان تلوين';
+            card.appendChild(img);
+            
+            card.addEventListener('click', () => flipCard(card));
+            gameGrid.appendChild(card);
+        });
+    }
+
+    function flipCard(card) {
+        if (lockBoard) return;
+        if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+        playSound('flip');
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        lockBoard = true;
+        const [card1, card2] = flippedCards;
+
+        if (card1.dataset.value === card2.dataset.value) {
+            // تطابق ممتاز وصحيح لحيوانين!
+            setTimeout(() => { playSound('match'); }, 120);
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            matchedCount += 2;
+            flippedCards = [];
+            lockBoard = false;
+
+            if (matchedCount === items.length) {
+                setTimeout(() => {
+                    winMessage.style.display = 'block';
+                }, 400);
+            }
+        } else {
+            // الحيوانات غير متطابقة، نعيد الإغلاق
+            setTimeout(() => { playSound('wrong'); }, 180);
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                flippedCards = [];
+                lockBoard = false;
+            }, 1000);
+        }
+    }
+
+    function resetGame() {
+        createBoard();
+    }
+
+    // تشغيل اللعبة
+    createBoard();
+</script>
+
+</body>
+</html>
