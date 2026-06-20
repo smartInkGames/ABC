@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بصمتي الصغيرة - نسخة الآيباد المعتمدة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>بصمتي الصغيرة - النسخة الذهبية للآيباد</title>
     <style>
         :root {
             --primary: #4A90E2;
@@ -18,7 +18,9 @@
             -webkit-user-select: none;
             margin: 0;
             padding: 0;
+            /* منع أي تفاعل افتراضي للمتصفح لمنع تعليق اللمس */
             touch-action: none;
+            -webkit-touch-callout: none;
         }
 
         body {
@@ -30,7 +32,9 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            padding-bottom: 10px;
+            position: fixed; /* تثبيت الشاشة كاملة على الآيباد */
+            width: 100%;
+            height: 100%;
         }
 
         header {
@@ -54,7 +58,7 @@
             gap: 8px;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 200px rgba(0,0,0,0.08);
             margin: 10px 0;
             width: 95%;
             max-width: 600px;
@@ -104,6 +108,7 @@
             justify-content: center;
             align-items: center;
             margin-top: 5px;
+            z-index: 50;
         }
 
         .flat-book {
@@ -150,7 +155,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 10;
+            z-index: 30; /* رفع طبقة الرسم فوق أي شيء لمنع تجاهل إصبع الطفل */
         }
 
         .status-footer {
@@ -161,6 +166,7 @@
             background: white;
             padding: 4px 12px;
             border-radius: 20px;
+            z-index: 100;
         }
     </style>
 </head>
@@ -168,7 +174,7 @@
 
     <header>
         <h1>بصمتي الصغيرة 📖✨</h1>
-        <p>تصميم مستقيم ونظيف - اسحبي لتقليب الصفحات ولوّني باللمس</p>
+        <p>اسحبي الشاشة يميناً ويساراً لتقليب الحروف ولوّني باللمس</p>
     </header>
 
     <audio id="bg-audio" src="song.mp3" loop></audio>
@@ -225,7 +231,6 @@
             canvas.height = canvas.parentElement.clientHeight;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             loadCanvasData();
         }
 
@@ -236,8 +241,9 @@
             setTimeout(loadCanvasData, 50);
         }
 
-        // دعم اللمس للآيباد والهواتف بالكامل وبدقة عالية
+        // إيقاف حركات المتصفح تماماً وتوجيه اللمس للرسم والتقليب
         canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // منع المتصفح من سحب الشاشة
             isDrawing = true;
             const coords = getCoords(e, true);
             lastX = coords.x; lastY = coords.y;
@@ -246,9 +252,10 @@
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
-        });
+        }, { passive: false });
 
         canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); 
             if (!isDrawing) return;
             const coords = getCoords(e, true);
 
@@ -256,8 +263,8 @@
                 const diffX = e.touches[0].clientX - touchStartX;
                 const diffY = e.touches[0].clientY - touchStartY;
 
-                // سحب الشاشة يميناً ويساراً لتقليب الصفحات على الآيباد والهاتف
-                if (Math.abs(diffX) > 70 && Math.abs(diffY) < 40) {
+                // التقليب بالسحب الأفقي الواضح والسلس للأطفال
+                if (Math.abs(diffX) > 60 && Math.abs(diffY) < 40) {
                     isDrawing = false;
                     if (diffX < 0) nextPage(); else prevPage();
                     return;
@@ -265,11 +272,11 @@
             }
 
             drawOnCanvas(coords.x, coords.y);
-        });
+        }, { passive: false });
 
-        canvas.addEventListener('touchend', () => { isDrawing = false; saveCanvasData(); });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); isDrawing = false; saveCanvasData(); }, { passive: false });
 
-        // دعم الماوس للكمبيوتر
+        // دعم الماوس
         canvas.addEventListener('mousedown', (e) => { isDrawing = true; const coords = getCoords(e, false); lastX = coords.x; lastY = coords.y; });
         canvas.addEventListener('mousemove', (e) => { if (isDrawing) { const coords = getCoords(e, false); drawOnCanvas(coords.x, coords.y); } });
         canvas.addEventListener('mouseup', () => { isDrawing = false; saveCanvasData(); });
@@ -333,7 +340,7 @@
         function toggleAudio() {
             if (audio.paused) {
                 audio.play().then(() => { audioBtn.textContent = "⏸️ الإيقاف"; })
-                .catch(() => { alert("اضغطي أولاً في أي مكان داخل الكتاب لتنشيط المتصفح ثم شغلي الصوت!"); });
+                .catch(() => { alert("اضغطي على الشاشة أولاً لتنشيط الصوت!"); });
             } else {
                 audio.pause(); audioBtn.textContent = "🎵 الأنشودة";
             }
