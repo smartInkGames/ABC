@@ -2,8 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بصمتي الصغيرة - كتاب تفاعلي بـ 105 لون</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بصمتي الصغيرة - كتاب التلوين التفاعلي</title>
+    
     <style>
         :root {
             --primary: #4A90E2;
@@ -18,6 +19,7 @@
             -webkit-user-select: none;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -35,21 +37,21 @@
         header {
             background: linear-gradient(135deg, #FFB74D, #FF8A65);
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             color: white;
         }
 
         header h1 { font-size: 22px; font-weight: bold; }
-        header p { font-size: 13px; opacity: 0.9; }
 
         .main-toolbar {
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            padding: 12px 20px;
+            padding: 10px 15px;
             display: flex;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
             align-items: center;
             justify-content: center;
             box-shadow: 0 6px 20px rgba(0,0,0,0.08);
@@ -66,45 +68,18 @@
             max-width: 950px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
         }
 
-        .palette-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #546E7A;
-            margin-bottom: 3px;
-            text-align: right;
-            padding-right: 5px;
-        }
-
-        .colors-grid {
-            display: grid;
-            grid-template-columns: repeat(21, 1fr); 
-            gap: 5px;
-        }
-
-        .color-block {
-            aspect-ratio: 1;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.15);
-            transition: transform 0.1s;
-        }
-        .color-block:hover, .color-block.active-color {
-            transform: scale(1.25);
-            border: 2px solid #000000;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
+        .palette-title { font-size: 13px; font-weight: bold; color: #546E7A; text-align: right; margin-bottom: 5px; }
+        .colors-grid { display: grid; grid-template-columns: repeat(21, 1fr); gap: 4px; }
+        .color-block { aspect-ratio: 1; border-radius: 6px; cursor: pointer; border: 1px solid rgba(0,0,0,0.15); }
+        .color-block.active-color { transform: scale(1.2); border: 2px solid #000000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
         .btn {
             background-color: var(--light);
             border: 2px solid #CFD8DC;
             border-radius: 10px;
-            padding: 8px 16px;
+            padding: 8px 14px;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
@@ -112,245 +87,94 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            transition: transform 0.1s;
         }
-
-        .btn:active { transform: scale(0.95); }
         .btn.active { background-color: var(--primary); color: white; border-color: var(--primary); }
         .btn-audio { background-color: #9C27B0; color: white; border-color: #9C27B0; }
 
         .scene-container {
-            width: 100%;
-            max-width: 560px; 
-            height: 540px; 
+            width: 95%;
+            max-width: 600px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 5px;
             position: relative;
+            padding: 0 60px;
+            margin-top: 10px;
         }
 
         .flat-book {
-            width: 400px;
-            height: 520px;
+            width: 100%;
+            max-width: 450px;
             position: relative;
-            background-color: #FFFFFF;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-            border-radius: 8px;
+            background: transparent;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-radius: 12px;
             overflow: hidden;
-        }
-
-        .page-content-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .page-img {
-            width: 100%;
-            height: 100%;
-            object-fit: fill; 
-            pointer-events: none;
-            position: absolute;
-            z-index: 1;
-        }
-
-        .drawing-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
-            cursor: crosshair;
-            touch-action: none;
-        }
-
-        .nav-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #FFFFFF;
-            border: 3px solid var(--primary);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--primary);
-            cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.2s;
         }
-        .nav-arrow:hover { background: var(--primary); color: white; }
-        .arrow-left { left: 5px; }
-        .arrow-right { right: 5px; }
 
-        .status-footer {
-            margin-top: 15px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #37474F;
-            background: white;
-            padding: 6px 15px;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        .page-content-wrapper { 
+            position: relative; 
+            width: 100%; 
+            height: auto;
+            display: inline-block;
         }
+
+        .page-img { 
+            width: 100%; 
+            height: auto; 
+            display: block;
+            pointer-events: none; 
+            z-index: 1; 
+        }
+
+        .drawing-canvas { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 2; 
+            cursor: crosshair; 
+            touch-action: none; 
+            background: transparent;
+        }
+
+        .nav-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%); background: #FFFFFF; border: 3px solid var(--primary);
+            width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 24px; font-weight: bold; color: var(--primary); cursor: pointer; z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .arrow-left { left: 0px; } .arrow-right { right: 0px; }
+        .status-footer { margin-top: 15px; font-size: 14px; font-weight: bold; color: #37474F; background: white; padding: 6px 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>بصمتي الصغيرة 📖✨</h1>
-        <p>علبة ألوان خشبية ضخمة وثابتة (105 لون) مخصصة لتلوين الحيوانات وتتبع الحروف</p>
+        <h1>📖 كتاب بصمتي الصغيرة التفاعلي ✨</h1>
     </header>
 
-    <audio id="bg-audio" src="song.mp3" loop></audio>
+    <audio id="bg-audio" src="song.mp3" loop preload="auto"></audio>
 
     <div class="main-toolbar">
         <button class="btn active" id="tool-pencil" onclick="setTool('pencil')">✏️ قلم بنسل</button>
-        <button class="btn" id="tool-brush" onclick="setTool('brush')">🖌️ فرشاة تلوين</button>
+        <button class="btn" id="tool-brush" onclick="setTool('brush')">✨ فرشاة النجوم</button>
         <button class="btn" id="tool-eraser" onclick="setTool('eraser')">🧽 ممحاة</button>
         <button class="btn btn-audio" id="btn-audio" onclick="toggleAudio()">🎵 تشغيل الأنشودة</button>
         <button class="btn" onclick="clearCurrentCanvas()" style="border-color: var(--accent); color: #D32F2F;">🗑️ مسح الرسم</button>
     </div>
 
     <div class="color-palette-container">
-        <div class="palette-title">🎨 علبة الألوان الخشبية الذكية (105 لون جاهز للطفل):</div>
-        <div class="colors-grid" id="colors-box">
-            <div class="color-block active-color" style="background-color: #000000;" onclick="changeColor('#000000', this)"></div>
-            <div class="color-block" style="background-color: #1A1A1A;" onclick="changeColor('#1A1A1A', this)"></div>
-            <div class="color-block" style="background-color: #333333;" onclick="changeColor('#333333', this)"></div>
-            <div class="color-block" style="background-color: #4D4D4D;" onclick="changeColor('#4D4D4D', this)"></div>
-            <div class="color-block" style="background-color: #666666;" onclick="changeColor('#666666', this)"></div>
-            <div class="color-block" style="background-color: #808080;" onclick="changeColor('#808080', this)"></div>
-            <div class="color-block" style="background-color: #999999;" onclick="changeColor('#999999', this)"></div>
-            <div class="color-block" style="background-color: #B3B3B3;" onclick="changeColor('#B3B3B3', this)"></div>
-            <div class="color-block" style="background-color: #CCCCCC;" onclick="changeColor('#CCCCCC', this)"></div>
-            <div class="color-block" style="background-color: #E6E6E6;" onclick="changeColor('#E6E6E6', this)"></div>
-            <div class="color-block" style="background-color: #FFFFFF;" onclick="changeColor('#FFFFFF', this)"></div>
-            <div class="color-block" style="background-color: #2C1A04;" onclick="changeColor('#2C1A04', this)"></div>
-            <div class="color-block" style="background-color: #3D2506;" onclick="changeColor('#3D2506', this)"></div>
-            <div class="color-block" style="background-color: #4E3108;" onclick="changeColor('#4E3108', this)"></div>
-            <div class="color-block" style="background-color: #5F3D0A;" onclick="changeColor('#5F3D0A', this)"></div>
-            <div class="color-block" style="background-color: #70490C;" onclick="changeColor('#70490C', this)"></div>
-            <div class="color-block" style="background-color: #81550E;" onclick="changeColor('#81550E', this)"></div>
-            <div class="color-block" style="background-color: #926110;" onclick="changeColor('#926110', this)"></div>
-            <div class="color-block" style="background-color: #A36D12;" onclick="changeColor('#A36D12', this)"></div>
-            <div class="color-block" style="background-color: #B47914;" onclick="changeColor('#B47914', this)"></div>
-            <div class="color-block" style="background-color: #C58516;" onclick="changeColor('#C58516', this)"></div>
-            <div class="color-block" style="background-color: #D69118;" onclick="changeColor('#D69118', this)"></div>
-            <div class="color-block" style="background-color: #3E2723;" onclick="changeColor('#3E2723', this)"></div>
-            <div class="color-block" style="background-color: #4E342E;" onclick="changeColor('#4E342E', this)"></div>
-            <div class="color-block" style="background-color: #5D4037;" onclick="changeColor('#5D4037', this)"></div>
-            <div class="color-block" style="background-color: #6D4C41;" onclick="changeColor('#6D4C41', this)"></div>
-            <div class="color-block" style="background-color: #7CB342;" onclick="changeColor('#7CB342', this)"></div>
-            <div class="color-block" style="background-color: #8D6E63;" onclick="changeColor('#8D6E63', this)"></div>
-            <div class="color-block" style="background-color: #A1887F;" onclick="changeColor('#A1887F', this)"></div>
-            <div class="color-block" style="background-color: #BCAAA4;" onclick="changeColor('#BCAAA4', this)"></div>
-            <div class="color-block" style="background-color: #D7CCC8;" onclick="changeColor('#D7CCC8', this)"></div>
-            <div class="color-block" style="background-color: #EFEBE9;" onclick="changeColor('#EFEBE9', this)"></div>
-            <div class="color-block" style="background-color: #F5F5F5;" onclick="changeColor('#F5F5F5', this)"></div>
-            <div class="color-block" style="background-color: #4A0000;" onclick="changeColor('#4A0000', this)"></div>
-            <div class="color-block" style="background-color: #7A0000;" onclick="changeColor('#7A0000', this)"></div>
-            <div class="color-block" style="background-color: #A80000;" onclick="changeColor('#A80000', this)"></div>
-            <div class="color-block" style="background-color: #D60000;" onclick="changeColor('#D60000', this)"></div>
-            <div class="color-block" style="background-color: #FF0000;" onclick="changeColor('#FF0000', this)"></div>
-            <div class="color-block" style="background-color: #FF3333;" onclick="changeColor('#FF3333', this)"></div>
-            <div class="color-block" style="background-color: #FF6666;" onclick="changeColor('#FF6666', this)"></div>
-            <div class="color-block" style="background-color: #FF9999;" onclick="changeColor('#FF9999', this)"></div>
-            <div class="color-block" style="background-color: #FFCCCC;" onclick="changeColor('#FFCCCC', this)"></div>
-            <div class="color-block" style="background-color: #FFE6E6;" onclick="changeColor('#FFE6E6', this)"></div>
-            <div class="color-block" style="background-color: #FFF0F0;" onclick="changeColor('#FFF0F0', this)"></div>
-            <div class="color-block" style="background-color: #880E4F;" onclick="changeColor('#880E4F', this)"></div>
-            <div class="color-block" style="background-color: #AD1457;" onclick="changeColor('#AD1457', this)"></div>
-            <div class="color-block" style="background-color: #C2185B;" onclick="changeColor('#C2185B', this)"></div>
-            <div class="color-block" style="background-color: #D81B60;" onclick="changeColor('#D81B60', this)"></div>
-            <div class="color-block" style="background-color: #E91E63;" onclick="changeColor('#E91E63', this)"></div>
-            <div class="color-block" style="background-color: #F06292;" onclick="changeColor('#F06292', this)"></div>
-            <div class="color-block" style="background-color: #F48FB1;" onclick="changeColor('#F48FB1', this)"></div>
-            <div class="color-block" style="background-color: #F8BBD0;" onclick="changeColor('#F8BBD0', this)"></div>
-            <div class="color-block" style="background-color: #FFCDD2;" onclick="changeColor('#FFCDD2', this)"></div>
-            <div class="color-block" style="background-color: #FFEBEE;" onclick="changeColor('#FFEBEE', this)"></div>
-            <div class="color-block" style="background-color: #4A148C;" onclick="changeColor('#4A148C', this)"></div>
-            <div class="color-block" style="background-color: #7F6E00;" onclick="changeColor('#7F6E00', this)"></div>
-            <div class="color-block" style="background-color: #A38D00;" onclick="changeColor('#A38D00', this)"></div>
-            <div class="color-block" style="background-color: #C7AD00;" onclick="changeColor('#C7AD00', this)"></div>
-            <div class="color-block" style="background-color: #EBCB00;" onclick="changeColor('#EBCB00', this)"></div>
-            <div class="color-block" style="background-color: #FFD700;" onclick="changeColor('#FFD700', this)"></div>
-            <div class="color-block" style="background-color: #FFE135;" onclick="changeColor('#FFE135', this)"></div>
-            <div class="color-block" style="background-color: #FFEA6C;" onclick="changeColor('#FFEA6C', this)"></div>
-            <div class="color-block" style="background-color: #FFF093;" onclick="changeColor('#FFF093', this)"></div>
-            <div class="color-block" style="background-color: #FFF5BA;" onclick="changeColor('#FFF5BA', this)"></div>
-            <div class="color-block" style="background-color: #FFFAD7;" onclick="changeColor('#FFFAD7', this)"></div>
-            <div class="color-block" style="background-color: #FFFFF0;" onclick="changeColor('#FFFFF0', this)"></div>
-            <div class="color-block" style="background-color: #E65100;" onclick="changeColor('#E65100', this)"></div>
-            <div class="color-block" style="background-color: #F57C00;" onclick="changeColor('#F57C00', this)"></div>
-            <div class="color-block" style="background-color: #FF9800;" onclick="changeColor('#FF9800', this)"></div>
-            <div class="color-block" style="background-color: #FFA726;" onclick="changeColor('#FFA726', this)"></div>
-            <div class="color-block" style="background-color: #FFB74D;" onclick="changeColor('#FFB74D', this)"></div>
-            <div class="color-block" style="background-color: #FFCC80;" onclick="changeColor('#FFCC80', this)"></div>
-            <div class="color-block" style="background-color: #FFE0B2;" onclick="changeColor('#FFE0B2', this)"></div>
-            <div class="color-block" style="background-color: #FFF3E0;" onclick="changeColor('#FFF3E0', this)"></div>
-            <div class="color-block" style="background-color: #FFF8E1;" onclick="changeColor('#FFF8E1', this)"></div>
-            <div class="color-block" style="background-color: #FFF9C4;" onclick="changeColor('#FFF9C4', this)"></div>
-            <div class="color-block" style="background-color: #FFFDE7;" onclick="changeColor('#FFFDE7', this)"></div>
-            <div class="color-block" style="background-color: #003300;" onclick="changeColor('#003300', this)"></div>
-            <div class="color-block" style="background-color: #004D00;" onclick="changeColor('#004D00', this)"></div>
-            <div class="color-block" style="background-color: #006600;" onclick="changeColor('#006600', this)"></div>
-            <div class="color-block" style="background-color: #008000;" onclick="changeColor('#008000', this)"></div>
-            <div class="color-block" style="background-color: #009900;" onclick="changeColor('#009900', this)"></div>
-            <div class="color-block" style="background-color: #00CC00;" onclick="changeColor('#00CC00', this)"></div>
-            <div class="color-block" style="background-color: #00FF00;" onclick="changeColor('#00FF00', this)"></div>
-            <div class="color-block" style="background-color: #33FF33;" onclick="changeColor('#33FF33', this)"></div>
-            <div class="color-block" style="background-color: #66FF66;" onclick="changeColor('#66FF66', this)"></div>
-            <div class="color-block" style="background-color: #99FF99;" onclick="changeColor('#99FF99', this)"></div>
-            <div class="color-block" style="background-color: #CCFFCC;" onclick="changeColor('#CCFFCC', this)"></div>
-            <div class="color-block" style="background-color: #1B5E20;" onclick="changeColor('#1B5E20', this)"></div>
-            <div class="color-block" style="background-color: #2E7D32;" onclick="changeColor('#2E7D32', this)"></div>
-            <div class="color-block" style="background-color: #388E3C;" onclick="changeColor('#388E3C', this)"></div>
-            <div class="color-block" style="background-color: #43A047;" onclick="changeColor('#43A047', this)"></div>
-            <div class="color-block" style="background-color: #4CAF50;" onclick="changeColor('#4CAF50', this)"></div>
-            <div class="color-block" style="background-color: #66BB6A;" onclick="changeColor('#66BB6A', this)"></div>
-            <div class="color-block" style="background-color: #81C784;" onclick="changeColor('#81C784', this)"></div>
-            <div class="color-block" style="background-color: #A5D6A7;" onclick="changeColor('#A5D6A7', this)"></div>
-            <div class="color-block" style="background-color: #C8E6C9;" onclick="changeColor('#C8E6C9', this)"></div>
-            <div class="color-block" style="background-color: #E8F5E9;" onclick="changeColor('#E8F5E9', this)"></div>
-            <div class="color-block" style="background-color: #F1F8E9;" onclick="changeColor('#F1F8E9', this)"></div>
-            <div class="color-block" style="background-color: #000033;" onclick="changeColor('#000033', this)"></div>
-            <div class="color-block" style="background-color: #000066;" onclick="changeColor('#000066', this)"></div>
-            <div class="color-block" style="background-color: #000099;" onclick="changeColor('#000099', this)"></div>
-            <div class="color-block" style="background-color: #0000CC;" onclick="changeColor('#0000CC', this)"></div>
-            <div class="color-block" style="background-color: #0000FF;" onclick="changeColor('#0000FF', this)"></div>
-            <div class="color-block" style="background-color: #3333FF;" onclick="changeColor('#3333FF', this)"></div>
-            <div class="color-block" style="background-color: #6666FF;" onclick="changeColor('#6666FF', this)"></div>
-            <div class="color-block" style="background-color: #9999FF;" onclick="changeColor('#9999FF', this)"></div>
-            <div class="color-block" style="background-color: #CCCCFF;" onclick="changeColor('#CCCCFF', this)"></div>
-            <div class="color-block" style="background-color: #E6E6FF;" onclick="changeColor('#E6E6FF', this)"></div>
-            <div class="color-block" style="background-color: #F0F0FF;" onclick="changeColor('#F0F0FF', this)"></div>
-            <div class="color-block" style="background-color: #0D47A1;" onclick="changeColor('#0D47A1', this)"></div>
-            <div class="color-block" style="background-color: #1565C0;" onclick="changeColor('#1565C0', this)"></div>
-            <div class="color-block" style="background-color: #1976D2;" onclick="changeColor('#1976D2', this)"></div>
-            <div class="color-block" style="background-color: #1E88E5;" onclick="changeColor('#1E88E5', this)"></div>
-            <div class="color-block" style="background-color: #2196F3;" onclick="changeColor('#2196F3', this)"></div>
-            <div class="color-block" style="background-color: #42A5F5;" onclick="changeColor('#42A5F5', this)"></div>
-            <div class="color-block" style="background-color: #64B5F6;" onclick="changeColor('#64B5F6', this)"></div>
-            <div class="color-block" style="background-color: #90CAF9;" onclick="changeColor('#90CAF9', this)"></div>
-            <div class="color-block" style="background-color: #BBDEFB;" onclick="changeColor('#BBDEFB', this)"></div>
-            <div class="color-block" style="background-color: #E3F2FD;" onclick="changeColor('#E3F2FD', this)"></div>
-            <div class="color-block" style="background-color: #E0F7FA;" onclick="changeColor('#E0F7FA', this)"></div>
-        </div>
+        <div class="palette-title">🎨 علبة الألوان الخشبية (105 لون جاهز):</div>
+        <div class="colors-grid" id="colors-box"></div>
     </div>
 
     <div class="scene-container">
-        <button class="nav-arrow arrow-left" onclick="nextPage()">◀️</button>
-        <button class="nav-arrow arrow-right" onclick="prevPage()">▶️</button>
+        <button class="nav-arrow arrow-left" onclick="prevPage()">◀️</button>
+        <button class="nav-arrow arrow-right" onclick="nextPage()">▶️</button>
 
         <div class="flat-book" id="book-element">
             <div class="page-content-wrapper">
@@ -360,9 +184,7 @@
         </div>
     </div>
 
-    <div class="status-footer" id="page-indicator">
-        الكتاب الحالي: الغلاف (صفحة 1 من 32)
-    </div>
+    <div class="status-footer" id="page-indicator">الغلاف (صفحة 1 من 32)</div>
 
     <script>
         const totalPages = 32;
@@ -380,9 +202,31 @@
 
         const savedDrawings = {};
 
-        function initCanvas() {
-            canvas.width = 400;
-            canvas.height = 520;
+        const colors105 = [
+            "#000000","#1A1A1A","#333333","#4D4D4D","#666666","#808080","#999999","#B3B3B3","#CCCCCC","#E6E6E6","#FFFFFF","#2C1A04","#3D2506","#4E3108","#5F3D0A","#70490C","#81550E","#926110","#A36D12","#B47914","#C58516",
+            "#D69118","#3E2723","#4E342E","#5D4037","#6D4C41","#7CB342","#8D6E63","#A1887F","#BCAAA4","#D7CCC8","#EFEBE9","#F5F5F5","#4A0000","#7A0000","#A80000","#D60000","#FF0000","#FF3333","#FF6666","#FF9999","#FFCCCC",
+            "#FFE6E6","#FFF0F0","#880E4F","#AD1457","#C2185B","#D81B60","#E91E63","#F06292","#F48FB1","#F8BBD0","#FFCDD2","#FFEBEE","#4A148C","#7F6E00","#A38D00","#C7AD00","#EBCB00","#FFD700","#FFE135","#FFEA6C","#FFF093",
+            "#FFF5BA","#FFFAD7","#FFFFF0","#E65100","#F57C00","#FF9800","#FFA726","#FFB74D","#FFCC80","#FFE0B2","#FFF3E0","#FFF8E1","#FFF9C4","#FFFDE7","#003300","#004D00","#006600","#008000","#009900","#00CC00","#00FF00",
+            "#33FF33","#66FF66","#99FF99","#CCFFCC","#1B5E20","#2E7D32","#388E3C","#43A047","#4CAF50","#66BB6A","#81C784","#A5D6A7","#C8E6C9","#E8F5E9","#F1F8E9","#000033","#000066","#000099","#0000CC","#0000FF","#3333FF",
+            "#6666FF","#9966FF","#CCCCFF","#E6E6FF","#F0F0FF","#0D47A1","#1565C0","#1976D2","#1E88E5","#2196F3","#42A5F5","#64B5F6","#90CAF9","#BBDEFB","#E3F2FD","#E0F7FA"
+        ];
+
+        function generatePalette() {
+            const box = document.getElementById('colors-box');
+            box.innerHTML = '';
+            colors105.forEach((color) => {
+                const block = document.createElement('div');
+                block.className = 'color-block' + (color === '#000000' ? ' active-color' : '');
+                block.style.backgroundColor = color;
+                block.addEventListener('click', () => { changeColor(color, block); });
+                block.addEventListener('touchstart', (e) => { changeColor(color, block); e.preventDefault(); }, {passive: false});
+                box.appendChild(block);
+            });
+        }
+
+        function resizeCanvas() {
+            canvas.width = pageImg.clientWidth || canvas.offsetWidth;
+            canvas.height = pageImg.clientHeight || canvas.offsetHeight;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             loadCanvasData();
@@ -390,84 +234,72 @@
 
         function updateBookPage() {
             pageImg.src = page${currentPage}.png;
-            document.getElementById('page-indicator').textContent = currentPage === 1 ? الكتاب الحالي: الغلاف (صفحة 1 من 32) : الكتاب الحالي: صفحة ${currentPage} من ${totalPages};
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            loadCanvasData();
+            document.getElementById('page-indicator').textContent = currentPage === 1 ? الغلاف (صفحة 1 من 32) : كتاب الحروف والرسومات التفاعلي - صفحة ${currentPage} من ${totalPages};
+            
+            pageImg.onload = () => {
+                resizeCanvas();
+            };
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3; let x = cx; let y = cy; let step = Math.PI / spikes;
+            ctx.beginPath(); ctx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; ctx.lineTo(x, y); rot += step;
+                x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; ctx.lineTo(x, y); rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius); ctx.closePath(); ctx.fillStyle = currentColor; ctx.fill();
         }
 
         canvas.addEventListener('mousedown', (e) => { startDraw(e.offsetX, e.offsetY); });
         canvas.addEventListener('mousemove', (e) => { doDraw(e.offsetX, e.offsetY); });
         canvas.addEventListener('mouseup', stopDraw);
-        canvas.addEventListener('mouseout', stopDraw);
 
         canvas.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 1) {
-                const rect = canvas.getBoundingClientRect();
-                startDraw(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-            }
-        });
+            const rect = canvas.getBoundingClientRect(); const touch = e.touches[0];
+            startDraw(touch.clientX - rect.left, touch.clientY - rect.top);
+            e.preventDefault();
+        }, {passive: false});
+
         canvas.addEventListener('touchmove', (e) => {
-            if(e.touches.length === 1) {
-                const rect = canvas.getBoundingClientRect();
-                doDraw(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-                e.preventDefault();
-            }
-        });
+            const rect = canvas.getBoundingClientRect(); const touch = e.touches[0];
+            doDraw(touch.clientX - rect.left, touch.clientY - rect.top);
+            e.preventDefault();
+        }, {passive: false});
+
         canvas.addEventListener('touchend', stopDraw);
 
         function startDraw(x, y) {
-            isDrawing = true;
-            lastX = x; lastY = y;
+            isDrawing = true; lastX = x; lastY = y;
+            if (currentTool === 'brush') { ctx.globalCompositeOperation = 'source-over'; drawStar(x, y, 5, 12, 6); }
         }
 
         function doDraw(x, y) {
             if (!isDrawing) return;
-
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-
             if (currentTool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 30;
-            } else {
+                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y);
+                ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 30; ctx.stroke();
+            } else if (currentTool === 'brush') {
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = currentTool === 'brush' ? 12 : 3;
+                if (Math.random() > 0.4) { let size = Math.random() * 12 + 6; drawStar(x, y, 5, size, size/2); }
+            } else {
+                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y);
+                ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = currentColor; ctx.lineWidth = 5; ctx.stroke();
             }
-
-            ctx.stroke();
             lastX = x; lastY = y;
         }
 
-        function stopDraw() {
-            if (isDrawing) {
-                isDrawing = false;
-                savedDrawings[currentPage] = canvas.toDataURL();
-            }
-        }
-
+        function stopDraw() { if (isDrawing) { isDrawing = false; savedDrawings[currentPage] = canvas.toDataURL(); } }
+        
         function loadCanvasData() {
             if (savedDrawings[currentPage]) {
-                const img = new Image();
-                img.src = savedDrawings[currentPage];
-                img.onload = () => ctx.drawImage(img, 0, 0);
+                const img = new Image(); img.src = savedDrawings[currentPage];
+                img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             }
         }
 
-        function nextPage() {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updateBookPage();
-            }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                updateBookPage();
-            }
-        }
+        function nextPage() { if (currentPage < totalPages) { currentPage++; updateBookPage(); } }
+        function prevPage() { if (currentPage > 1) { currentPage--; updateBookPage(); } }
 
         function setTool(tool) {
             currentTool = tool;
@@ -478,29 +310,27 @@
         }
 
         function changeColor(color, element) {
-            currentColor = color;
-            if(currentTool === 'eraser') setTool('brush');
-            
+            currentColor = color; if(currentTool === 'eraser') setTool('pencil');
             document.querySelectorAll('.color-block').forEach(b => b.classList.remove('active-color'));
             if(element) element.classList.add('active-color');
         }
 
-        function clearCurrentCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            delete savedDrawings[currentPage];
-        }
+        function clearCurrentCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); delete savedDrawings[currentPage]; }
 
         function toggleAudio() {
             if (audio.paused) {
-                audio.play();
+                audio.play().catch(err => console.log("تفاعل مطلوب أولاً"));
                 audioBtn.textContent = "⏸️ إيقاف الأنشودة";
             } else {
-                audio.pause();
-                audioBtn.textContent = "🎵 تشغيل الأنشودة";
+                audio.pause(); audioBtn.textContent = "🎵 تشغيل الأنشودة";
             }
         }
 
-        window.addEventListener('load', initCanvas);
+        window.addEventListener('load', () => {
+            generatePalette();
+            updateBookPage();
+        });
+        window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
