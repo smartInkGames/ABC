@@ -1,0 +1,20 @@
+{
+  "name": "my-first-abc-book",
+  "version": "1.0.0",
+  "description": "Interactive Digital ABC Book for Children",
+  "main": "index.html",
+  "scripts": {
+    "init-capacitor": "cap init \"My First ABC Book\" \"com.smartink.abcbook\" --web-dir=www"
+  },
+  "keywords": [],
+  "author": "smartink",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  }
+}
