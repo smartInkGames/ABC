@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My First ABC Book - Premium Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: #ff4d4d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #book-container {
+            position: relative;
+            width: 92vw;
+            height: 78vh;
+            max-width: 1100px;
+            max-height: 750px;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1500px;
+        }
+
+        .page-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .page-wrapper.active {
+            display: block;
+        }
+
+        .page-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #fff;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            cursor: crosshair;
+            mix-blend-mode: multiply; 
+        }
+
+        .audio-trigger-zone {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            cursor: pointer;
+        }
+
+        #toolbar {
+            position: absolute;
+            bottom: 12px;
+            z-index: 10;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 25px;
+            border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            align-items: center;
+        }
+
+        .tool-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f2f2f2;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .tool-btn:active, .tool-btn.active {
+            transform: scale(1.15);
+            background-color: #ffe6e6;
+            border: 3px solid #ff4d4d;
+        }
+
+        .color-picker-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, red, orange, yellow, green, blue, purple);
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid white;
+        }
+
+        .color-picker-container input[type="color"] {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 80px;
+            height: 80px;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            border: none;
+            font-size: 26px;
+            color: #ff4d4d;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+        }
+
+        #prev-btn { left: 15px; }
+        #next-btn { right: 15px; }
+
+        #game-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.93);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .game-title {
+            font-size: 28px;
+            margin-bottom: 40px;
+            color: #ffeb3b;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ice-cream-game-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 80%;
+            height: 250px;
+            gap: 50px;
+        }
+
+        .ice-cream-scoop {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background-color: #ff7675;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 52px;
+            font-weight: bold;
+            color: white;
+            cursor: grab;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            border: 4px solid white;
+            transition: transform 0.2s;
+        }
+
+        .ice-cream-scoop:active {
+            cursor: grabbing;
+        }
+
+        .ice-cream-cone-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 130px;
+        }
+
+        .scoop-dropzone {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 4px dashed #ffeaa7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: -15px;
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+
+        .ice-cream-cone {
+            width: 0;
+            height: 0;
+            border-left: 55px solid transparent;
+            border-right: 55px solid transparent;
+            border-top: 100px solid #fdcb6e;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .cone-text {
+            position: absolute;
+            top: -85px;
+            font-size: 44px;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        #close-game {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .celebrate {
+            animation: bounce 0.4s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="prev-btn" class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+    <button id="next-btn" class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+
+    <div id="book-container">
+        <!-- توليد الصفحات تلقائياً -->
+    </div>
+
+    <div id="toolbar">
+        <button id="tool-brush" class="tool-btn active"><i class="fas fa-paint-brush"></i></button>
+        <button id="tool-eraser" class="tool-btn"><i class="fas fa-eraser"></i></button>
+        <button id="tool-size" class="tool-btn"><i class="fas fa-sliders-h"></i></button>
+        
+        <div class="color-picker-container" title="Choose any color">
+            <input type="color" id="super-color-picker" value="#ff3333">
+        </div>
+
+        <button id="tool-game" class="tool-btn" style="background-color: #ffeb3b; color: #333; display: none;"><i class="fas fa-gamepad"></i></button>
+        <button id="tool-clear" class="tool-btn"><i class="fas fa-trash-alt"></i></button>
+    </div>
+
+    <div id="game-overlay">
+        <button id="close-game" class="tool-btn"><i class="fas fa-times"></i></button>
+        <div class="game-title" id="game-question">Match the Big Letter with the Small Letter!</div>
+        
+        <div class="ice-cream-game-container">
+            <div class="ice-cream-scoop" id="drag-scoop" draggable="true">A</div>
+            
+            <div class="ice-cream-cone-wrapper">
+                <div class="scoop-dropzone" id="dropzone"></div>
+                <div class="ice-cream-cone">
+                    <span class="cone-text" id="cone-letter">a</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    <script>
+        const TOTAL_PAGES = 35;
+        let currentPage = 1;
+        let isDrawing = false;
+        let currentMode = 'brush'; 
+        let currentColor = '#ff3333';
+        let currentSize = 12;
+        
+        const bookContainer = document.getElementById('book-container');
+        const audioPlayer = document.getElementById('audio-player');
+        const superColorPicker = document.getElementById('super-color-picker');
+        const toolGameBtn = document.getElementById('tool-game');
+
+        // خريطة الحروف والصفحات كاملة مع تصحيح لعبة حرف V في الصفحة 26
+        const targetPagesGame = {
+            2: { big: 'A', small: 'a', color: '#ff7675' },
+            4: { big: 'B', small: 'b', color: '#74b9ff' },
+            5: { big: 'C', small: 'c', color: '#55efc4' },
+            6: { big: 'D', small: 'd', color: '#a29bfe' },
+            7: { big: 'E', small: 'e', color: '#ffeaa7' },
+            8: { big: 'F', small: 'f', color: '#fab1a0' },
+            9: { big: 'G', small: 'g', color: '#fd79a8' },
+            11: { big: 'H', small: 'h', color: '#fdcb6e' },
+            12: { big: 'I', small: 'i', color: '#e84393' },
+            13: { big: 'J', small: 'j', color: '#0984e3' },
+            14: { big: 'K', small: 'k', color: '#00b894' },
+            15: { big: 'L', small: 'l', color: '#6c5ce7' },
+            16: { big: 'M', small: 'm', color: '#ff7675' },
+            18: { big: 'N', small: 'n', color: '#74b9ff' },
+            19: { big: 'O', small: 'o', color: '#55efc4' },
+            20: { big: 'Q', small: 'q', color: '#a29bfe' },
+            21: { big: 'R', small: 'r', color: '#ffeaa7' },
+            22: { big: 'S', small: 's', color: '#fab1a0' },
+            23: { big: 'T', small: 't', color: '#fd79a8' },
+            25: { big: 'U', small: 'u', color: '#fdcb6e' },
+            26: { big: 'V', small: 'v', color: '#e84393' }, // تم الإصلاح هنا من solid إلى small بنجاح!
+            27: { big: 'W', small: 'w', color: '#0984e3' },
+            29: { big: 'X', small: 'x', color: '#00b894' },
+            31: { big: 'Y', small: 'y', color: '#6c5ce7' },
+            33: { big: 'Z', small: 'z', color: '#ff7675' }
+        };
+
+        function initBook() {
+            for (let i = 1; i <= TOTAL_PAGES; i++) {
+                const wrapper = document.createElement('div');
+                wrapper.className = `page-wrapper ${i === 1 ? 'active' : ''}`;
+                wrapper.dataset.page = i;
+
+                const content = document.createElement('div');
+                content.className = 'page-content';
+                content.style.backgroundImage = `url('page${i}.png')`;
+
+                const triggerZone = document.createElement('div');
+                triggerZone.className = 'audio-trigger-zone';
+                triggerZone.onclick = () => playPageAudio(i);
+
+                const canvas = document.createElement('canvas');
+
+                content.appendChild(triggerZone);
+                content.appendChild(canvas);
+                wrapper.appendChild(content);
+                bookContainer.appendChild(wrapper);
+
+                setupCanvas(canvas);
+            }
+            checkGameButtonVisibility();
+            playPageAudio(1);
+        }
+
+        function setupCanvas(canvas) {
+            const resize = () => {
+                canvas.width = bookContainer.clientWidth;
+                canvas.height = bookContainer.clientHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+            };
+            resize();
+            window.addEventListener('resize', resize);
+            setupDrawingEvents(canvas);
+        }
+
+        // تم إصلاح مسار تشغيل الصوت القياسي والمحاكي للمسافات تماماً لصفحة 16 و 21
+        function playPageAudio(pageNumber) {
+            let audioSrc = `song${pageNumber}.mp3.mpeg`;
+            
+            if (pageNumber === 16) {
+                audioSrc = `song16 .mp3.mpeg`; 
+            }
+            if (pageNumber === 21) {
+                audioSrc = `song21.mp3 (1).mpeg`;
+            }
+
+            audioPlayer.src = audioSrc;
+            audioPlayer.play().catch(e => {
+                if (pageNumber === 16) {
+                    audioPlayer.src = `song16.mp3.mpeg`;
+                    audioPlayer.play().catch(err => {});
+                }
+                if (pageNumber === 21) {
+                    audioPlayer.src = `song21.mp3(1).mpeg`;
+                    audioPlayer.play().catch(err => {});
+                }
+            });
+        }
+
+        function changePage(direction) {
+            const nextPage = currentPage + direction;
+            if (nextPage >= 1 && nextPage <= TOTAL_PAGES) {
+                document.querySelector(`.page-wrapper[data-page='${currentPage}']`).classList.remove('active');
+                document.querySelector(`.page-wrapper[data-page='${nextPage}']`).classList.add('active');
+                currentPage = nextPage;
+                checkGameButtonVisibility();
+                playPageAudio(currentPage);
+            }
+        }
+
+        function checkGameButtonVisibility() {
+            if (targetPagesGame[currentPage]) {
+                toolGameBtn.style.display = 'flex';
+            } else {
+                toolGameBtn.style.display = 'none';
+            }
+        }
+
+        document.getElementById('prev-btn').onclick = () => changePage(-1);
+        document.getElementById('next-btn').onclick = () => changePage(1);
+
+        function setupDrawingEvents(canvas) {
+            const ctx = canvas.getContext('2d');
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            function startDraw(e) {
+                isDrawing = true;
+                ctx.beginPath();
+                const pos = getPos(e);
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineWidth = currentSize;
+                
+                if (currentMode === 'eraser') {
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.strokeStyle = 'rgba(0,0,0,1)';
+                } else {
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.strokeStyle = currentColor;
+                }
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            window.addEventListener('mouseup', () => isDrawing = false);
+
+            canvas.addEventListener('touchstart', startDraw, {passive: false});
+            canvas.addEventListener('touchmove', draw, {passive: false});
+            window.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        superColorPicker.oninput = function() {
+            currentColor = this.value;
+            currentMode = 'brush';
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tool-brush').classList.add('active');
+        };
+
+        document.getElementById('tool-brush').onclick = function() {
+            currentMode = 'brush';
+            setActiveTool(this);
+        };
+
+        document.getElementById('tool-eraser').onclick = function() {
+            currentMode = 'eraser';
+            setActiveTool(this);
+        };
+
+        document.getElementById('tool-size').onclick = function() {
+            currentSize = currentSize === 12 ? 22 : currentSize === 22 ? 6 : 12;
+        };
+
+        document.getElementById('tool-clear').onclick = function() {
+            const activeCanvas = document.querySelector(`.page-wrapper[data-page='${currentPage}'] canvas`);
+            const ctx = activeCanvas.getContext('2d');
+            ctx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+        };
+
+        function setActiveTool(button) {
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                if(btn.id !== 'tool-game') btn.classList.remove('active');
+            });
+            button.classList.add('active');
+        }
+
+        const gameOverlay = document.getElementById('game-overlay');
+        const dragScoop = document.getElementById('drag-scoop');
+        const dropzone = document.getElementById('dropzone');
+        const coneLetter = document.getElementById('cone-letter');
+
+        toolGameBtn.onclick = function() {
+            const gameConfig = targetPagesGame[currentPage];
+            if (!gameConfig) return;
+
+            dragScoop.innerText = gameConfig.big;
+            dragScoop.style.backgroundColor = gameConfig.color;
+            dragScoop.style.display = 'flex';
+            dragScoop.classList.remove('celebrate');
+            
+            coneLetter.innerText = gameConfig.small;
+            dropzone.innerHTML = '';
+            dropzone.style.backgroundColor = 'transparent';
+
+            gameOverlay.style.display = 'flex';
+        };
+
+        document.getElementById('close-game').onclick = () => {
+            gameOverlay.style.display = 'none';
+        };
+
+        dragScoop.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', dragScoop.innerText);
+        });
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            handleMatchSuccess();
+        });
+
+        dragScoop.addEventListener('touchstart', (e) => {
+            dragScoop.style.transform = 'scale(1.1)';
+        });
+
+        dragScoop.addEventListener('touchend', (e) => {
+            dragScoop.style.transform = 'none';
+            const touch = e.changedTouches[0];
+            const dropRect = dropzone.getBoundingClientRect();
+            
+            if (touch.clientX >= dropRect.left && touch.clientX <= dropRect.right &&
+                touch.clientY >= dropRect.top && touch.clientY <= dropRect.bottom) {
+                handleMatchSuccess();
+            }
+        });
+
+        function handleMatchSuccess() {
+            const gameConfig = targetPagesGame[currentPage];
+            dropzone.style.backgroundColor = gameConfig.color;
+            dropzone.innerText = gameConfig.big;
+            dropzone.style.fontSize = '52px';
+            dropzone.style.fontWeight = 'bold';
+            dropzone.style.color = 'white';
+            
+            dragScoop.style.display = 'none';
+            dropzone.classList.add('celebrate');
+            
+            playFeedbackAudio(true);
+        }
+
+        function playFeedbackAudio(isCorrect) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (isCorrect) {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); 
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); 
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.55);
+            }
+        }
+
+        window.onload = initBook;
+    </script>
+</body>
+</html>
